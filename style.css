@@ -1,0 +1,51 @@
+:root {
+    --primary: #2c3e50;
+    --accent: #3498db;
+    --danger: #e74c3c;
+    --success: #27ae60;
+    --light: #f4f7f6;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background-color: var(--light);
+}
+
+/* Navbar */
+.navbar {
+    background: var(--primary);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand { font-size: 1.5rem; font-weight: bold; }
+.nav-link { color: white; margin-right: 20px; text-decoration: none; }
+.btn-logout { background: var(--danger); color: white; padding: 5px 15px; border-radius: 5px; text-decoration: none; cursor: pointer; border: none; }
+
+/* Layouts */
+.container { padding: 20px; max-width: 1100px; margin: 0 auto; display: flex; gap: 20px; }
+.auth-container { height: 100vh; display: flex; align-items: center; justify-content: center; }
+
+/* Cards & Sections */
+.card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; }
+.sidebar { width: 300px; }
+.main-content { flex: 1; }
+
+/* Forms */
+.form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+.form-group label { font-weight: bold; margin-bottom: 5px; }
+.form-group input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+.btn-primary { background: var(--accent); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+.status { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; background: #e8f5e9; color: #2e7d32; }
+
+/* Progress Bar */
+.progress-bg { background: #ddd; border-radius: 10px; height: 10px; margin: 10px 0; }
+.progress-fill { background: var(--accent); height: 100%; border-radius: 10px; }
