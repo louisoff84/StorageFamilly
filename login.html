@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion - CloudSafe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+    <div class="login-container">
+        <h2>Accès Sécurisé</h2>
+        <form action="/auth/login" method="POST">
+            <input type="text" name="username_full" style="display:none">
+            
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="admin@cloudsafe.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required placeholder="••••••••">
+            </div>
+            
+            <button type="submit" class="btn-primary">Se connecter</button>
+            <p class="forgot-pw"><a href="#">Mot de passe oublié ?</a></p>
+        </form>
+    </div>
+</body>
+</html>
