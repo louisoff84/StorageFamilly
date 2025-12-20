@@ -2,52 +2,167 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mon Stockage - CloudSafe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudSafe - Mon Stockage Local</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
-        if(localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+        // Vérification de la session au chargement
+        if (localStorage.getItem("isLoggedIn") !== "true") {
+            window.location.href = "login.html";
+        }
     </script>
 </head>
 <body>
+
     <nav class="navbar">
-        <div class="nav-brand">CloudSafe</div>
-        <div>
-            <a href="config.html" class="nav-link">Configuration</a>
+        <div class="nav-brand">
+            <i class="fas fa-shield-alt"></i> CloudSafe
+        </div>
+        <div class="nav-user">
+            <span id="displayPseudo">Bienvenue, <strong>Utilisateur</strong></span>
+            <a href="config.html" class="nav-link"><i class="fas fa-cog"></i> Configuration</a>
             <button onclick="logout()" class="btn-logout">Déconnexion</button>
         </div>
     </nav>
 
     <div class="container">
+        <!-- Barre latérale : Actions et Stats -->
         <aside class="sidebar card">
-            <h3>Stockage</h3>
-            <div class="progress-bg">
-                <div class="progress-fill" style="width: 40%;"></div>
-            </div>
-            <small>4 Go utilisés sur 10 Go</small>
-            <hr>
-            <input type="file" id="up" style="display:none">
-            <button onclick="document.getElementById('up').click()" class="btn-primary" style="margin-top:10px;">
-                <i class="fas fa-upload"></i> Envoyer
+            <h3>Gestion Locale</h3>
+            <p style="font-size: 0.85rem; color: #666;">Connectez un dossier de votre PC pour activer le stockage.</p>
+            
+            <button class="btn btn-success" onclick="setupFolder()" id="folderBtn">
+                <i class="fas fa-folder-open"></i> 1. Connecter Dossier
             </button>
+
+            <div class="storage-info" style="margin-top: 20px;">
+                <label>Utilisation (Simulée)</label>
+                <div class="progress-bg">
+                    <div class="progress-fill" id="storageBar" style="width: 0%;"></div>
+                </div>
+                <small id="storageText">0 Go sur 10 Go</small>
+            </div>
+            
+            <hr>
+
+            <div class="upload-area">
+                <input type="file" id="fileInput" style="display:none" onchange="handleFileUpload()">
+                <button class="btn btn-primary" onclick="triggerUpload()" id="uploadBtn" disabled title="Connectez d'abord un dossier">
+                    <i class="fas fa-cloud-upload-alt"></i> 2. Sauvegarder Fichier
+                </button>
+            </div>
         </aside>
 
+        <!-- Contenu principal : Liste des fichiers -->
         <main class="main-content card">
-            <h2>Mes Fichiers</h2>
-            <table>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Mes Fichiers Enregistrés</h2>
+                <span id="folderStatus" style="color: var(--danger); font-size: 0.9rem;">
+                    <i class="fas fa-times-circle"></i> Dossier non connecté
+                </span>
+            </div>
+
+            <table id="fileTable">
                 <thead>
-                    <tr><th>Nom</th><th>Taille</th><th>Actions</th></tr>
+                    <tr>
+                        <th>Nom du fichier</th>
+                        <th>Taille</th>
+                        <th>Statut Local</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
-                <tbody>
-                    <tr><td>Projet_Final.zip</td><td>150 Mo</td><td><i class="fas fa-download"></i></td></tr>
+                <tbody id="fileListBody">
+                    <!-- Les fichiers apparaîtront ici après l'upload -->
                 </tbody>
             </table>
         </main>
     </div>
 
     <script>
+        let dirHandle = null;
+
+        // Mise à jour du pseudo affiché
+        const currentPseudo = localStorage.getItem("adminPseudo") || "Admin";
+        document.getElementById("displayPseudo").innerHTML = `Bienvenue, <strong>${currentPseudo}</strong>`;
+
+        // 1. Demander l'accès au dossier local
+        async function setupFolder() {
+            try {
+                dirHandle = await window.showDirectoryPicker();
+                document.getElementById('folderStatus').innerHTML = '<i class="fas fa-check-circle" style="color:var(--success)"></i> Dossier connecté';
+                document.getElementById('folderStatus').style.color = "var(--success)";
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('uploadBtn').title = "Envoyer vers le dossier local";
+                document.getElementById('folderBtn').innerHTML = '<i class="fas fa-sync"></i> Changer de dossier';
+                alert("Connexion réussie au dossier local !");
+            } catch (err) {
+                console.error("Accès refusé", err);
+            }
+        }
+
+        function triggerUpload() {
+            if (!dirHandle) {
+                alert("Veuillez d'abord connecter un dossier local.");
+                return;
+            }
+            document.getElementById('fileInput').click();
+        }
+
+        // 2. Traitement et écriture du fichier
+        async function handleFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file || !dirHandle) return;
+
+            try {
+                // Créer l'accès au fichier dans le dossier choisi
+                const fileHandle = await dirHandle.getFileHandle(file.name, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(file);
+                await writable.close();
+
+                // Ajouter à la liste visuelle
+                addFileToUI(file.name, file.size);
+                updateStorageBar(file.size);
+                
+                alert(`Fichier "${file.name}" sauvegardé avec succès sur votre PC.`);
+            } catch (err) {
+                alert("Erreur lors de la sauvegarde : " + err.message);
+            }
+        }
+
+        function addFileToUI(name, size) {
+            const tbody = document.getElementById('fileListBody');
+            const sizeKB = (size / 1024).toFixed(2);
+            const row = `
+                <tr>
+                    <td><i class="fas fa-file"></i> ${name}</td>
+                    <td>${sizeKB} Ko</td>
+                    <td><span class="status">Stocké sur PC</span></td>
+                    <td>
+                        <button class="action-btn" title="Supprimer de la vue" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-trash" style="color:var(--danger)"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        }
+
+        let simulatedUsage = 0;
+        function updateStorageBar(newSize) {
+            const max = (localStorage.getItem("maxStorage") || 10) * 1024 * 1024 * 1024; // Convertir Go en Octets
+            simulatedUsage += newSize;
+            const percent = Math.min((simulatedUsage / max) * 100, 100);
+            
+            document.getElementById('storageBar').style.width = percent + "%";
+            const usedGo = (simulatedUsage / (1024*1024*1024)).toFixed(2);
+            document.getElementById('storageText').innerText = `${usedGo} Go sur ${localStorage.getItem("maxStorage") || 10} Go`;
+        }
+
         function logout() {
-            localStorage.clear();
+            localStorage.setItem("isLoggedIn", "false");
             window.location.href = "login.html";
         }
     </script>
