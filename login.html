@@ -5,25 +5,37 @@
     <title>Connexion - CloudSafe</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="auth-page">
-    <div class="login-container">
-        <h2>Accès Sécurisé</h2>
-        <form action="/auth/login" method="POST">
-            <input type="text" name="username_full" style="display:none">
-            
-            <div class="input-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required placeholder="admin@cloudsafe.com">
+<body class="auth-container">
+    <div class="card" style="max-width: 400px;">
+        <h2 style="text-align: center;">Connexion</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Utilisateur (par défaut: admin)</label>
+                <input type="text" id="user" required>
             </div>
-            
-            <div class="input-group">
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" required placeholder="••••••••">
+            <div class="form-group">
+                <label>Mot de passe (par défaut: admin123)</label>
+                <input type="password" id="pass" required>
             </div>
-            
             <button type="submit" class="btn-primary">Se connecter</button>
-            <p class="forgot-pw"><a href="#">Mot de passe oublié ?</a></p>
+            <p id="error" style="color:var(--danger); display:none; margin-top:10px;">Identifiants incorrects.</p>
         </form>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+
+            // Logique de vérification simplifiée
+            if(user === "admin" && pass === "admin123") {
+                localStorage.setItem("isLoggedIn", "true");
+                window.location.href = "index.html";
+            } else {
+                document.getElementById('error').style.display = "block";
+            }
+        });
+    </script>
 </body>
 </html>
