@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudSafe - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-shield-alt"></i> CloudSafe
+        </div>
+        <div class="nav-user">
+            <span>Bienvenue, <strong>Admin</strong></span>
+            <a href="config.html" class="nav-link"><i class="fas fa-cog"></i></a>
+            <a href="login.html" class="btn-logout">Déconnexion</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="storage-info">
+                <h3>Votre Stockage</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 65%;"></div>
+                </div>
+                <p>6.5 Go utilisés sur 10 Go</p>
+            </div>
+            
+            <div class="upload-box">
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <label for="file-upload" class="custom-file-upload">
+                        <i class="fas fa-cloud-upload-alt"></i> Envoyer un fichier
+                    </label>
+                    <input id="file-upload" type="file" name="myfile"/>
+                </form>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div class="header-actions">
+                <h2>Mes Fichiers Sécurisés</h2>
+                <div class="search-bar">
+                    <input type="text" placeholder="Rechercher un fichier...">
+                </div>
+            </div>
+
+            <table class="file-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Taille</th>
+                        <th>Dernière modif.</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><i class="fas fa-file-pdf icon-pdf"></i> rapport_final.pdf</td>
+                        <td>PDF</td>
+                        <td>2.4 Mo</td>
+                        <td>Hier, 14:20</td>
+                        <td>
+                            <button class="action-btn"><i class="fas fa-download"></i></button>
+                            <button class="action-btn btn-danger"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-file-image icon-img"></i> logo_entreprise.png</td>
+                        <td>Image</td>
+                        <td>850 Ko</td>
+                        <td>12 Déc. 2025</td>
+                        <td>
+                            <button class="action-btn"><i class="fas fa-download"></i></button>
+                            <button class="action-btn btn-danger"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+</body>
+</html>
