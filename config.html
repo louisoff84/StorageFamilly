@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Configuration - Admin</title>
+    <title>Configuration - CloudSafe</title>
     <link rel="stylesheet" href="style.css">
     <script>
         if(localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
@@ -10,37 +10,52 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="nav-brand">CloudSafe Admin</div>
-        <a href="index.html" class="nav-link" style="color:white">Retour</a>
+        <div class="nav-brand">Administration</div>
+        <a href="index.html">Retour au Stockage</a>
     </nav>
 
     <div class="container" style="flex-direction: column;">
-        <div class="card">
-            <h2>Paramètres Système</h2>
-            <div style="display:flex; gap:20px;">
-                <div class="form-group">
-                    <label>Stockage Max (Go)</label>
-                    <input type="number" id="maxS" value="100">
-                </div>
-                <div class="form-group">
-                    <label>Taille Fichier Max (Mo)</label>
-                    <input type="number" value="500">
-                </div>
+        <div class="card" style="margin-bottom: 20px;">
+            <h2><i class="fas fa-user-cog"></i> Gestion du Compte Admin</h2>
+            <div class="form-group">
+                <label>Nouveau Pseudo</label>
+                <input type="text" id="newPseudo">
             </div>
-            <button class="btn-primary" style="width:200px;" onclick="alert('Paramètres sauvegardés')">Sauvegarder</button>
+            <div class="form-group">
+                <label>Nouveau Mot de Passe</label>
+                <input type="password" id="newPass" placeholder="Laissez vide pour ne pas changer">
+            </div>
+            <button class="btn btn-success" onclick="updateAccount()">Enregistrer les modifications</button>
         </div>
 
-        <div class="card" style="margin-top:20px;">
-            <h2>Utilisateurs</h2>
-            <table>
-                <tr><th>Email</th><th>Quota</th><th>Actions</th></tr>
-                <tr>
-                    <td>user@exemple.com</td>
-                    <td>5 Go</td>
-                    <td><button class="btn-logout" style="background:var(--accent)">Editer</button></td>
-                </tr>
-            </table>
+        <div class="card">
+            <h2><i class="fas fa-hdd"></i> Limites de Stockage</h2>
+            <div class="form-group">
+                <label>Quota maximum (Go)</label>
+                <input type="number" id="quota" value="10">
+            </div>
+            <button class="btn btn-primary" onclick="alert('Quota mis à jour !')">Mettre à jour le quota</button>
         </div>
     </div>
+
+    <script>
+        // Charger le pseudo actuel dans le champ
+        document.getElementById('newPseudo').value = localStorage.getItem("adminPseudo");
+
+        function updateAccount() {
+            const p = document.getElementById('newPseudo').value;
+            const m = document.getElementById('newPass').value;
+
+            if (p.trim() === "") return alert("Le pseudo ne peut pas être vide.");
+
+            localStorage.setItem("adminPseudo", p);
+            if (m.trim() !== "") {
+                localStorage.setItem("adminPass", m);
+            }
+
+            alert("Compte mis à jour avec succès !");
+            location.reload(); // Rafraîchir pour voir les changements
+        }
+    </script>
 </body>
 </html>
