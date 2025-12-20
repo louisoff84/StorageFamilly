@@ -95,10 +95,30 @@
                 document.getElementById('uploadBtn').disabled = false;
                 document.getElementById('uploadBtn').title = "Envoyer vers le dossier local";
                 document.getElementById('folderBtn').innerHTML = '<i class="fas fa-sync"></i> Changer de dossier';
+                
+                // Charger les fichiers déjà présents dans le dossier
+                refreshFileList();
+                
                 alert("Connexion réussie au dossier local !");
             } catch (err) {
                 console.error("Accès refusé", err);
             }
+        }
+
+        async function refreshFileList() {
+            if (!dirHandle) return;
+            const tbody = document.getElementById('fileListBody');
+            tbody.innerHTML = '';
+            simulatedUsage = 0;
+
+            for await (const entry of dirHandle.values()) {
+                if (entry.kind === 'file') {
+                    const file = await entry.getFile();
+                    addFileToUI(file.name, file.size);
+                    simulatedUsage += file.size;
+                }
+            }
+            updateStorageBar(0); // Rafraîchit l'affichage du quota
         }
 
         function triggerUpload() {
@@ -116,19 +136,30 @@
             if (!file || !dirHandle) return;
 
             try {
-                // Créer l'accès au fichier dans le dossier choisi
                 const fileHandle = await dirHandle.getFileHandle(file.name, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(file);
                 await writable.close();
 
-                // Ajouter à la liste visuelle
-                addFileToUI(file.name, file.size);
-                updateStorageBar(file.size);
-                
-                alert(`Fichier "${file.name}" sauvegardé avec succès sur votre PC.`);
+                refreshFileList(); // Recharger la liste pour être à jour
+                alert(`Fichier "${file.name}" sauvegardé avec succès.`);
             } catch (err) {
                 alert("Erreur lors de la sauvegarde : " + err.message);
+            }
+        }
+
+        // 3. Suppression REELLE du fichier sur le disque
+        async function deleteFile(name) {
+            if (!dirHandle) return;
+            
+            if (confirm(`Voulez-vous vraiment supprimer définitivement "${name}" de votre ordinateur ?`)) {
+                try {
+                    await dirHandle.removeEntry(name);
+                    refreshFileList(); // Recharger la liste
+                    alert("Fichier supprimé du dossier local.");
+                } catch (err) {
+                    alert("Erreur lors de la suppression : " + err.message);
+                }
             }
         }
 
@@ -141,7 +172,7 @@
                     <td>${sizeKB} Ko</td>
                     <td><span class="status">Stocké sur PC</span></td>
                     <td>
-                        <button class="action-btn" title="Supprimer de la vue" onclick="this.parentElement.parentElement.remove()">
+                        <button class="action-btn" title="Supprimer du disque" onclick="deleteFile('${name.replace(/'/g, "\\'")}')">
                             <i class="fas fa-trash" style="color:var(--danger)"></i>
                         </button>
                     </td>
@@ -152,13 +183,14 @@
 
         let simulatedUsage = 0;
         function updateStorageBar(newSize) {
-            const max = (localStorage.getItem("maxStorage") || 10) * 1024 * 1024 * 1024; // Convertir Go en Octets
+            const maxQuotaGo = localStorage.getItem("maxStorage") || 10;
+            const max = maxQuotaGo * 1024 * 1024 * 1024; 
             simulatedUsage += newSize;
             const percent = Math.min((simulatedUsage / max) * 100, 100);
             
             document.getElementById('storageBar').style.width = percent + "%";
             const usedGo = (simulatedUsage / (1024*1024*1024)).toFixed(2);
-            document.getElementById('storageText').innerText = `${usedGo} Go sur ${localStorage.getItem("maxStorage") || 10} Go`;
+            document.getElementById('storageText').innerText = `${usedGo} Go sur ${maxQuotaGo} Go`;
         }
 
         function logout() {
