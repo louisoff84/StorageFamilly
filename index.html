@@ -2,87 +2,54 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudSafe - Dashboard</title>
+    <title>Mon Stockage - CloudSafe</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        if(localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+    </script>
 </head>
 <body>
-
     <nav class="navbar">
-        <div class="nav-brand">
-            <i class="fas fa-shield-alt"></i> CloudSafe
-        </div>
-        <div class="nav-user">
-            <span>Bienvenue, <strong>Admin</strong></span>
-            <a href="config.html" class="nav-link"><i class="fas fa-cog"></i></a>
-            <a href="login.html" class="btn-logout">Déconnexion</a>
+        <div class="nav-brand">CloudSafe</div>
+        <div>
+            <a href="config.html" class="nav-link">Configuration</a>
+            <button onclick="logout()" class="btn-logout">Déconnexion</button>
         </div>
     </nav>
 
     <div class="container">
-        <aside class="sidebar">
-            <div class="storage-info">
-                <h3>Votre Stockage</h3>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 65%;"></div>
-                </div>
-                <p>6.5 Go utilisés sur 10 Go</p>
+        <aside class="sidebar card">
+            <h3>Stockage</h3>
+            <div class="progress-bg">
+                <div class="progress-fill" style="width: 40%;"></div>
             </div>
-            
-            <div class="upload-box">
-                <form action="/upload" method="post" enctype="multipart/form-data">
-                    <label for="file-upload" class="custom-file-upload">
-                        <i class="fas fa-cloud-upload-alt"></i> Envoyer un fichier
-                    </label>
-                    <input id="file-upload" type="file" name="myfile"/>
-                </form>
-            </div>
+            <small>4 Go utilisés sur 10 Go</small>
+            <hr>
+            <input type="file" id="up" style="display:none">
+            <button onclick="document.getElementById('up').click()" class="btn-primary" style="margin-top:10px;">
+                <i class="fas fa-upload"></i> Envoyer
+            </button>
         </aside>
 
-        <main class="content">
-            <div class="header-actions">
-                <h2>Mes Fichiers Sécurisés</h2>
-                <div class="search-bar">
-                    <input type="text" placeholder="Rechercher un fichier...">
-                </div>
-            </div>
-
-            <table class="file-table">
+        <main class="main-content card">
+            <h2>Mes Fichiers</h2>
+            <table>
                 <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Type</th>
-                        <th>Taille</th>
-                        <th>Dernière modif.</th>
-                        <th>Actions</th>
-                    </tr>
+                    <tr><th>Nom</th><th>Taille</th><th>Actions</th></tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><i class="fas fa-file-pdf icon-pdf"></i> rapport_final.pdf</td>
-                        <td>PDF</td>
-                        <td>2.4 Mo</td>
-                        <td>Hier, 14:20</td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-download"></i></button>
-                            <button class="action-btn btn-danger"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><i class="fas fa-file-image icon-img"></i> logo_entreprise.png</td>
-                        <td>Image</td>
-                        <td>850 Ko</td>
-                        <td>12 Déc. 2025</td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-download"></i></button>
-                            <button class="action-btn btn-danger"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
+                    <tr><td>Projet_Final.zip</td><td>150 Mo</td><td><i class="fas fa-download"></i></td></tr>
                 </tbody>
             </table>
         </main>
     </div>
 
+    <script>
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
 </body>
 </html>
