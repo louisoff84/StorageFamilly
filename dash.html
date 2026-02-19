@@ -1,0 +1,40 @@
+<body class="bg-black text-white p-10 font-sans">
+    <div class="max-w-5xl mx-auto">
+        <nav class="flex justify-between mb-20">
+            <h1 class="text-2xl font-black">VAULT.</h1>
+            <div id="userInfo" class="flex gap-6 text-sm text-gray-400 font-bold uppercase tracking-tighter">
+                <span id="uName"></span> | <span id="uPlan" class="text-blue-500"></span>
+            </div>
+        </nav>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div class="bg-zinc-900 p-8 rounded-[32px] border border-white/5">
+                <h3 class="text-gray-500 text-xs font-bold uppercase mb-4">Stockage</h3>
+                <div class="h-2 bg-black rounded-full mb-4"><div id="bar" class="h-full bg-blue-600 rounded-full transition-all duration-700" style="width:0%"></div></div>
+                <p id="storageStatus" class="text-sm font-mono">0 / 0 Mo</p>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                <a href="upload.html" class="bg-white text-black p-5 rounded-2xl text-center font-bold hover:scale-105 transition">Uploader</a>
+                <a href="manage.html" class="bg-zinc-800 p-5 rounded-2xl text-center font-bold hover:bg-zinc-700 transition">Mes Fichiers</a>
+                <a href="shop.html" class="bg-zinc-800 p-5 rounded-2xl text-center font-bold hover:bg-zinc-700 transition text-blue-400">Upgrade Plan</a>
+                <a id="adminBtn" href="admin.html" class="hidden border border-red-500/30 text-red-500 p-5 rounded-2xl text-center font-bold">Panel Admin</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        const API = "http://localhost:3000";
+        async function init() {
+            const res = await fetch(`${API}/files`, { headers: { 'Authorization': localStorage.getItem('token') } });
+            const d = await res.json();
+            document.getElementById('uName').innerText = localStorage.getItem('username');
+            document.getElementById('uPlan').innerText = localStorage.getItem('plan');
+            if(localStorage.getItem('role') === 'admin') document.getElementById('adminBtn').classList.remove('hidden');
+            
+            const perc = (d.used / d.limit) * 100 || 0;
+            document.getElementById('bar').style.width = perc + "%";
+            document.getElementById('storageStatus').innerText = `${(d.used/1024/1024).toFixed(1)} / ${(d.limit/1024/1024).toFixed(0)} Mo`;
+        }
+        init();
+    </script>
+</body>
