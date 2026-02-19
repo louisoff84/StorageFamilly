@@ -2,83 +2,53 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body { background: #080808; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
-        .file-row:hover { background: rgba(255,255,255,0.04); }
-    </style>
 </head>
-<body class="p-6 md:p-12">
-    <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-10">
-            <div>
-                <h1 class="text-3xl font-black italic">FILES<span class="text-blue-600">.</span></h1>
-                <p id="stats" class="text-xs text-gray-500 mt-1 font-mono uppercase"></p>
-            </div>
-            <div class="flex gap-4">
-                <input type="text" id="search" oninput="render()" placeholder="Rechercher..." class="glass px-4 py-2 rounded-xl text-sm outline-none focus:border-blue-500 transition-all">
-                <button onclick="location.href='dash.html'" class="glass p-2 px-4 rounded-xl text-xs font-bold hover:bg-white/10">DASHBOARD</button>
-            </div>
-        </header>
+<body class="p-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-2xl font-black">MES <span class="text-blue-600">FICHIERS</span></h2>
+            <button onclick="location.href='dash.html'" class="btn-primary">RETOUR</button>
+        </div>
 
-        <div class="glass rounded-[32px] overflow-hidden">
-            <div class="grid grid-cols-12 p-4 border-b border-white/5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                <div class="col-span-6">Nom</div>
-                <div class="col-span-3">Taille</div>
-                <div class="col-span-3 text-right">Actions</div>
-            </div>
+        <div class="glass overflow-hidden">
             <div id="fileList" class="divide-y divide-white/5">
                 </div>
         </div>
     </div>
 
     <script>
-        const API = "http://localhost:3000";
-        let filesData = [];
-
         async function load() {
-            const res = await fetch(`${API}/files`, { headers: { 'Authorization': localStorage.getItem('token') } });
+            const res = await fetch('http://192.168.1.17:3000/files', {
+                headers: {'Authorization': localStorage.getItem('token')}
+            });
             const data = await res.json();
-            filesData = data.files;
-            document.getElementById('stats').innerText = `${(data.used/1024/1024).toFixed(1)} Mo utilisés / ${(data.limit/1024/1024).toFixed(0)} Mo`;
-            render();
-        }
-
-        function render() {
-            const q = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('fileList');
-            list.innerHTML = filesData.filter(f => f.name.toLowerCase().includes(q)).map(f => `
-                <div class="grid grid-cols-12 p-4 items-center file-row transition-all">
-                    <div class="col-span-6 flex items-center gap-3">
-                        <i data-lucide="file" class="text-blue-500" size="18"></i>
-                        <span class="text-sm font-medium truncate">${f.name}</span>
+            
+            list.innerHTML = data.files.length ? data.files.map(f => `
+                <div class="p-5 flex justify-between items-center hover:bg-white/5 transition">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="file-text" class="text-blue-500"></i>
+                        <span class="text-sm font-semibold">${f.name}</span>
                     </div>
-                    <div class="col-span-3 text-xs text-gray-500 font-mono">${(f.size/1024/1024).toFixed(2)} Mo</div>
-                    <div class="col-span-3 flex justify-end gap-2">
-                        <button onclick="download('${f.name}')" class="p-2 hover:text-blue-400 transition"><i data-lucide="download" size="16"></i></button>
-                        <button onclick="del('${f.name}')" class="p-2 hover:text-red-500 transition"><i data-lucide="trash-2" size="16"></i></button>
+                    <div class="flex gap-4">
+                        <button onclick="del('${f.name}')" class="text-red-500 hover:scale-110 transition"><i data-lucide="trash-2" size="18"></i></button>
                     </div>
                 </div>
-            `).join('');
+            `).join('') : '<p class="p-10 text-center text-gray-500">Aucun fichier au coffre.</p>';
             lucide.createIcons();
         }
-
         async function del(name) {
-            if(!confirm('Supprimer ?')) return;
-            await fetch(`${API}/file/${name}`, { method: 'DELETE', headers: { 'Authorization': localStorage.getItem('token') } });
-            load();
+            if(confirm("Supprimer ?")) {
+                await fetch(`http://192.168.1.17:3000/file/${name}`, {
+                    method: 'DELETE',
+                    headers: {'Authorization': localStorage.getItem('token')}
+                });
+                load();
+            }
         }
-
-        async function download(name) {
-            const res = await fetch(`${API}/download/${name}`, { headers: { 'Authorization': localStorage.getItem('token') } });
-            const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = name; a.click();
-        }
-
         load();
     </script>
 </body>
