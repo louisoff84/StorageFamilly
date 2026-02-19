@@ -2,62 +2,56 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body { background: #050505; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); }
-    </style>
 </head>
 <body class="p-8">
     <div class="max-w-4xl mx-auto">
         <header class="flex justify-between items-center mb-12">
-            <h1 class="text-2xl font-black italic">ADMIN<span class="text-blue-500">VAULT</span></h1>
-            <a href="dash.html" class="text-xs text-gray-500 hover:text-white uppercase tracking-widest">Retour Dashboard</a>
+            <h1 class="text-2xl font-black text-red-500 italic">ADMIN PANEL</h1>
+            <button onclick="location.href='dash.html'" class="text-xs text-gray-500 uppercase tracking-widest">Dashboard</button>
         </header>
 
-        <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
-            <i data-lucide="bell-ring" class="text-blue-500"></i> Demandes de mise à niveau
-        </h2>
-
-        <div id="requestList" class="space-y-4">
+        <div id="reqContainer" class="space-y-4">
             </div>
     </div>
 
     <script>
-        const API_URL = "https://TON_URL_NGROK.ngrok-free.app";
-        const TOKEN = localStorage.getItem('vault_token');
-
-        async function loadRequests() {
-            const res = await fetch(`${API_URL}/admin/requests`, { headers: {'Authorization': TOKEN} });
+        async function loadReqs() {
+            const res = await fetch('http://localhost:3000/admin/requests', {
+                headers: {'Authorization': localStorage.getItem('token')}
+            });
             const reqs = await res.json();
-            const container = document.getElementById('requestList');
+            const container = document.getElementById('reqContainer');
             
-            container.innerHTML = reqs.length ? reqs.map(r => `
-                <div class="glass p-6 rounded-[24px] flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+            container.innerHTML = reqs.map(r => `
+                <div class="glass p-6 flex justify-between items-center animate">
                     <div>
                         <p class="font-bold text-lg">${r.username}</p>
-                        <p class="text-sm text-blue-400">Souhaite passer au plan : <span class="font-bold">${r.requestedPlan}</span></p>
+                        <p class="text-xs text-blue-500 font-mono">Plan demandé : ${r.plan}</p>
                     </div>
-                    <div class="flex gap-3">
-                        <button onclick="process('${r.id}', 'accept')" class="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-xl text-sm font-bold transition">Accepter</button>
-                        <button onclick="process('${r.id}', 'decline')" class="bg-white/5 hover:bg-white/10 px-5 py-2 rounded-xl text-sm font-bold transition">Refuser</button>
+                    <div class="flex gap-2">
+                        <button onclick="proc('${r.id}', 'accept')" class="btn-primary py-2 px-4 text-xs">ACCEPTER</button>
+                        <button onclick="proc('${r.id}', 'decline')" class="bg-white/5 p-3 rounded-xl hover:bg-white/10 text-xs">REFUSER</button>
                     </div>
                 </div>
-            `).join('') : '<p class="text-gray-600 italic">Aucune demande en attente...</p>';
+            `).join('');
             lucide.createIcons();
         }
 
-        async function process(requestId, action) {
-            await fetch(`${API_URL}/admin/process`, {
+        async function proc(id, action) {
+            await fetch('http://192.168.1.17:3000/admin/process', {
                 method: 'POST',
-                headers: { 'Authorization': TOKEN, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ requestId, action })
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, action })
             });
-            loadRequests();
+            loadReqs();
         }
-
-        loadRequests();
+        loadReqs();
     </script>
 </body>
 </html>
